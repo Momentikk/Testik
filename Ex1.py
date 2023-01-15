@@ -60,6 +60,34 @@ class Ground(pygame.sprite.Sprite):
             return False
 
 
+class CollisionZone(pygame.sprite.Sprite):
+    def __init__(self, x, y, w, h, pos):
+        super(CollisionZone, self).__init__()
+        
+        self.pos = pos
+        if self.pos == "up" or self.pos == "down":
+            self.image = pygame.Surface((w, 3))
+        else:
+            self.image = pygame.Surface((3, h))
+
+        self.image.fill(YELLOW)
+        self.rect = self.image.get_rect()
+        
+        self.changepos()
+
+    def changepos(self):
+        if self.pos == "left":
+                
+
+        elif self.pos == "right":
+
+
+        elif self.pos == "up":
+
+
+        else:
+
+
 
 class Hero(pygame.sprite.Sprite):
     def __init__(self, x, y):
@@ -75,6 +103,10 @@ class Hero(pygame.sprite.Sprite):
         #self.image = self.list[0]
         # self.w, self.h = self.image.get_size()
         #self.rect = self.image.get_rect()
+
+        
+
+
         self.image = pygame.Surface((48, 64))
         self.image.fill(RED)
         self.rect = self.image.get_rect()
@@ -82,7 +114,10 @@ class Hero(pygame.sprite.Sprite):
         self.y = y
         self.rect.x = x
         self.rect.y = y
-                
+
+
+
+
         self.hdir = ""
         self.prov = ""
         
