@@ -103,6 +103,7 @@ class Hero(pygame.sprite.Sprite):
         if key[pygame.K_SPACE]:
 
             resDictY = self.checkY()
+            print(resDictY)
             if resDictY["isGround"]:
                 self.yVelocity -= 20
 
@@ -111,8 +112,6 @@ class Hero(pygame.sprite.Sprite):
         # круглое отрицательное число ;)
         resDict = {'isGround': False, 'deltaY': 100}
         ybottom = self.y + self.rect.height
-
-        deltaY = 65
 
         lstcollide = pygame.sprite.spritecollide(self, grounds, False)
         for elemcolground in lstcollide:
@@ -123,7 +122,8 @@ class Hero(pygame.sprite.Sprite):
                 resDict['isGround'] = True
                 #print("       delta", ybottom, "   ", elemcolground.rect.y)
                 if (ybottom - elemcolground.rect.y) <= resDict['deltaY']:
-                    resDict['deltaY'] = ybottom - elemcolground.rect.y - 1
+                    #resDict['deltaY'] = ybottom - elemcolground.rect.y - 1
+                    resDict['deltaY'] = ybottom - elemcolground.rect.y 
                     
         #print("       ", resDict)
         return resDict
@@ -155,16 +155,17 @@ class Hero(pygame.sprite.Sprite):
 
             
     def move(self, dt):
-        #print("Начало  MOVE")
+        print("Начало  MOVE")
         #print("     velos=", self.yVelocity, "   self.y=", self.y)
 
         oldx = self.x
         oldy = self.y
         #print("     oldy=", oldy)
 
-        self.x += self.xVelocity
+        self.x += int(self.xVelocity)
         self.y += self.yVelocity
 
+        print("yvel=", self.yVelocity)
         #print("     self.y=", self.y)
 
         self.rect.x = self.x
@@ -174,30 +175,59 @@ class Hero(pygame.sprite.Sprite):
             elemground.image.fill(GREEN)
 
         resDictY = self.checkY()
+        
+        #print(resDictY)
         if resDictY["isGround"]:
-            #print(resDictY)
+            #print("вошли в землю")
+            # приземляемся 
             self.y = self.y - resDictY["deltaY"]
-            print(self.y)
+            
             self.rect.y = self.y
-            self.yVelocity = 0
-
-        if self.yVelocity < self.jumpCount and not resDictY["isGround"]: 
-            self.yVelocity += self.gravity
-
-        resDictX = self.checkX()
-        if resDictX["isBlock"]:
+            self.yVelocity = self.gravity
+        else:
+            #print("НЕ вошли в землю")
+            
+            if self.yVelocity < self.jumpCount: 
+                self.yVelocity += self.gravity
+                print("add vel")
+        #resDictX = self.checkX()
+        #if resDictX["isBlock"]:
             #print("x do = ", self.x)
             
-            self.rect.x = self.rect.x + resDictX["deltaX"] 
-            self.x = self.rect.x
+        #    self.rect.x = self.rect.x + resDictX["deltaX"] 
+        #    self.x = self.rect.x
             #print("x aft = ", self.x)
-            self.xVelocity = 0
+        #    self.xVelocity = 0
 
         # рабочий фрагмент
-        if self.xVelocity != 0 and not resDictX["isBlock"]:
-            self.xVelocity /= 70*dt
+        #if self.xVelocity != 0 and not resDictX["isBlock"]:
+        #    self.xVelocity /= 70*dt
 
-        #print("Конец MOVE\n\n")
+        #resDictY = self.checkY()
+        #if resDictY["isGround"]:
+            #print(resDictY)
+        #    self.y = self.y - resDictY["deltaY"]
+        #    print(self.y)
+        #    self.rect.y = self.y
+        #    self.yVelocity = 0
+
+        #if self.yVelocity < self.jumpCount and not resDictY["isGround"]: 
+        #    self.yVelocity += self.gravity
+
+        #resDictX = self.checkX()
+        #if resDictX["isBlock"]:
+            #print("x do = ", self.x)
+            
+        #    self.rect.x = self.rect.x + resDictX["deltaX"] 
+        #    self.x = self.rect.x
+            #print("x aft = ", self.x)
+        #    self.xVelocity = 0
+
+        # рабочий фрагмент
+        #if self.xVelocity != 0 and not resDictX["isBlock"]:
+        #    self.xVelocity /= 70*dt
+    
+        print("Конец MOVE\n\n")
         
     def update(self):
         self.rect = pygame.Rect(self.x, self.y, 48, 64)
