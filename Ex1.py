@@ -182,8 +182,9 @@ class Hero(pygame.sprite.Sprite):
         resDictX = self.checkX()
         if resDictX["isBlock"]:
             #print("x do = ", self.x)
+            #self.x += resDictX["deltaX"]
+            self.rect.x += resDictX["deltaX"]
             
-            self.rect.x = self.rect.x + resDictX["deltaX"] 
             self.x = self.rect.x
             #print("x aft = ", self.x)
             self.xVelocity = 0
