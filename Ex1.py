@@ -44,55 +44,11 @@ class Ground(pygame.sprite.Sprite):
         self.deltax = 0
         self.deltay = 0
 
-    def inner(self, tx, ty):
-        # определим попадание внутрь квадрата
-        xleft = self.rect.x
-        yleft = self.rect.y
-        xright = self.rect.bottomright[0]
-        yright = self.rect.bottomright[1]
-
-        if (tx >= xleft and tx <= xright) and (ty >= yleft and ty <= yright):
-            self.deltax = tx - xleft
-            self.deltay = ty - yleft
-
-            return True
-        else:
-            return False
-
-
-class CollisionZone(pygame.sprite.Sprite):
-    def __init__(self, x, y, w, h, pos):
-        super(CollisionZone, self).__init__()
-        
-        self.pos = pos
-        if self.pos == "up" or self.pos == "down":
-            self.image = pygame.Surface((w, 3))
-        else:
-            self.image = pygame.Surface((3, h))
-
-        self.image.fill(YELLOW)
-        self.rect = self.image.get_rect()
-        
-        self.changepos()
-
-    def changepos(self):
-        if self.pos == "left":
-                
-
-        elif self.pos == "right":
-
-
-        elif self.pos == "up":
-
-
-        else:
-
-
 
 class Hero(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super(Hero, self).__init__()
-        
+
         #self.list = []
         #for i in range(1, 3):
         #    self.list.append(load_image("hero/hero" + str(i) + ".png"))
@@ -104,9 +60,6 @@ class Hero(pygame.sprite.Sprite):
         # self.w, self.h = self.image.get_size()
         #self.rect = self.image.get_rect()
 
-        
-
-
         self.image = pygame.Surface((48, 64))
         self.image.fill(RED)
         self.rect = self.image.get_rect()
@@ -115,8 +68,10 @@ class Hero(pygame.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
 
+        w = self.rect.width
+        h = self.rect.height
 
-
+        
 
         self.hdir = ""
         self.prov = ""
@@ -151,12 +106,6 @@ class Hero(pygame.sprite.Sprite):
             if resDictY["isGround"]:
                 self.yVelocity -= 20
 
-    def isBlocking(self, x, y):
-        return False
-        #if y > 400:
-        #    return True
-        #else:
-        #    return False
 
     def checkY(self):
         # круглое отрицательное число ;)
@@ -167,10 +116,10 @@ class Hero(pygame.sprite.Sprite):
 
         lstcollide = pygame.sprite.spritecollide(self, grounds, False)
         for elemcolground in lstcollide:
-            elemcolground.image.fill(BLUE)
-
+            
             # из всех колиженов берем только "горизонтальные"
             if elemcolground.rect.y <= ybottom and (self.rect.centery < elemcolground.rect.top):
+                elemcolground.image.fill(BLUE)
                 resDict['isGround'] = True
                 #print("       delta", ybottom, "   ", elemcolground.rect.y)
                 if (ybottom - elemcolground.rect.y) <= resDict['deltaY']:
@@ -180,26 +129,33 @@ class Hero(pygame.sprite.Sprite):
         #print("       ", resDict)
         return resDict
 
-
     def checkX(self):
         resDict = {'isBlock': False, 'deltaX': 0}
-        xright = self.x + self.rect.width
 
-        deltaX = 0
-
+        ybottom = self.y + self.rect.height
         lstcollide = pygame.sprite.spritecollide(self, grounds, False)
         for elemcolground in lstcollide:
-            elemcolground.image.fill(BLUE)
+           
 
             # из всех колиженов берем только "вертикальные"
-            if elemcolground.rect.y <= (self.y + self.rect.height) and (self.rect.right > elemcolground.rect.left):
+            if ( self.rect.bottom - elemcolground.rect.top) >= 2:
+                print("coltop=", elemcolground.rect.top, "    sprbottm=", self.rect.bottom)
+                elemcolground.image.fill(YELLOW)
                 resDict['isBlock'] = True
                 #print("       delta", ybottom, "   ", elemcolground.rect.y)
-                if (xright - elemcolground.rect.left) > resDict['deltaX']:
-                    deltaX = xright - elemcolground.rect.left
-                    resDict['deltaX'] = elemcolground.rect.left + 1
+                # помеха слева
+                if (elemcolground.rect.right - self.rect.left) > 0:
+                    elemcolground.image.fill(YELLOW)
+                    #resDict['deltaX']
+                    #deltaY = ybottom - elemcolground.rect.y
+                    #resDict['deltaX'] = elemcolground.rect.y + 1
+                
+                # помеха справа
+                if (self.rect.right - elemcolground.rect.right) > 0:
+                    elemcolground.image.fill(ORANGE)
+
                     
-        print(resDict)
+        #print(resDict)
         return resDict
 
             
@@ -225,7 +181,6 @@ class Hero(pygame.sprite.Sprite):
         resDictY = self.checkY()
         if resDictY["isGround"]:
             
-            # TODO: высота спрайта
             self.y = resDictY["deltaY"] - self.rect.height
             self.rect.y = self.y
             self.yVelocity = 0
@@ -238,7 +193,7 @@ class Hero(pygame.sprite.Sprite):
         resDictX = self.checkX()
         if resDictX["isBlock"]:
             self.x = resDictX["deltaX"] - self.rect.width
-            self.rect.x = self.y
+            self.rect.x = self.x
             self.xVelocity = 0
 
         # рабочий фрагмент
@@ -274,7 +229,7 @@ grounds.add(gr4)
 
 
 
-tapeMouse = False
+lpause = False
 running = True
 while running:
     # Ввод процесса (события)
@@ -291,22 +246,26 @@ while running:
             if event.key == pygame.K_ESCAPE:
                 pygame.quit()
             
+            if event.key == pygame.K_p:
+                lpause = True
            
-    
+        if event.type == pygame.KEYUP:
+            if event.key == pygame.K_p:
+                lpause = False
 
 
     # Рендеринг
     
     scene.fill(BLUE)
     grounds.draw(scene)
+
+    
     
     MyHero.getKeys()
-    MyHero.move(dt)
-    
-    
+    if not lpause:
+        MyHero.move(dt)
     
     all_sprites.update()
-    
     all_sprites.draw(scene)
     
     # После отрисовки всего, переворачиваем экран
