@@ -82,6 +82,7 @@ class Hero(pygame.sprite.Sprite):
         self.xVelocity = 0
         self.yVelocity = 0
         self.speed = 1
+        self.isGround = False
         
         self.jumpCount = 12
         self.gravity = 2
@@ -101,10 +102,10 @@ class Hero(pygame.sprite.Sprite):
             self.xVelocity += self.speed
             self.hdir = "right"
         if key[pygame.K_SPACE]:
-
-            resDictY = self.checkY()
-            print(resDictY)
-            if resDictY["isGround"]:
+            
+            
+            #print(resDictY)
+            if self.isGround:
                 self.yVelocity -= 20
 
 
@@ -155,18 +156,9 @@ class Hero(pygame.sprite.Sprite):
 
             
     def move(self, dt):
-        print("Начало  MOVE")
-        #print("     velos=", self.yVelocity, "   self.y=", self.y)
-
-        oldx = self.x
-        oldy = self.y
-        #print("     oldy=", oldy)
-
+        # print("Начало  MOVE")
         self.x += int(self.xVelocity)
         self.y += self.yVelocity
-
-        print("yvel=", self.yVelocity)
-        #print("     self.y=", self.y)
 
         self.rect.x = self.x
         self.rect.y = self.y
@@ -175,29 +167,26 @@ class Hero(pygame.sprite.Sprite):
             elemground.image.fill(GREEN)
 
         resDictY = self.checkY()
+        self.isGround = resDictY["isGround"]
         
-        #print(resDictY)
         if resDictY["isGround"]:
-            #print("вошли в землю")
+            # print("вошли в землю")
             # приземляемся 
             self.y = self.y - resDictY["deltaY"]
-            
             self.rect.y = self.y
             self.yVelocity = self.gravity
         else:
-            #print("НЕ вошли в землю")
-            
             if self.yVelocity < self.jumpCount: 
                 self.yVelocity += self.gravity
-                print("add vel")
-        #resDictX = self.checkX()
-        #if resDictX["isBlock"]:
+          
+        resDictX = self.checkX()
+        if resDictX["isBlock"]:
             #print("x do = ", self.x)
             
-        #    self.rect.x = self.rect.x + resDictX["deltaX"] 
-        #    self.x = self.rect.x
+            self.rect.x = self.rect.x + resDictX["deltaX"] 
+            self.x = self.rect.x
             #print("x aft = ", self.x)
-        #    self.xVelocity = 0
+            self.xVelocity = 0
 
         # рабочий фрагмент
         #if self.xVelocity != 0 and not resDictX["isBlock"]:
@@ -227,7 +216,7 @@ class Hero(pygame.sprite.Sprite):
         #if self.xVelocity != 0 and not resDictX["isBlock"]:
         #    self.xVelocity /= 70*dt
     
-        print("Конец MOVE\n\n")
+        #print("Конец MOVE\n\n")
         
     def update(self):
         self.rect = pygame.Rect(self.x, self.y, 48, 64)
