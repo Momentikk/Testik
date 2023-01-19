@@ -37,7 +37,6 @@ class Ground(pygame.sprite.Sprite):
         self.image = pygame.Surface((64, 64))
         self.image.fill(GREEN)
         self.rect = self.image.get_rect()
-        # self.rect.center = (wscene / 2, hscene / 2)
         self.rect.x = posx
         self.rect.y = posy
 
@@ -70,18 +69,14 @@ class Hero(pygame.sprite.Sprite):
 
         w = self.rect.width
         h = self.rect.height
-
-        
-
         self.hdir = ""
         self.prov = ""
         
         self.vdir = ""
-        
 
         self.xVelocity = 0
         self.yVelocity = 0
-        self.speed = 1
+        self.speed = 5
         self.isGround = False
         
         self.jumpCount = 12
@@ -96,18 +91,14 @@ class Hero(pygame.sprite.Sprite):
         
         key = pygame.key.get_pressed()
         if key[pygame.K_LEFT]:
-            self.xVelocity -= self.speed
+            self.xVelocity = -self.speed
             self.hdir = "left"
         if key[pygame.K_RIGHT]:
-            self.xVelocity += self.speed
+            self.xVelocity = self.speed
             self.hdir = "right"
         if key[pygame.K_SPACE]:
-            
-            
-            #print(resDictY)
             if self.isGround:
                 self.yVelocity -= 20
-
 
     def checkY(self):
         # круглое отрицательное число ;)
@@ -116,17 +107,13 @@ class Hero(pygame.sprite.Sprite):
 
         lstcollide = pygame.sprite.spritecollide(self, grounds, False)
         for elemcolground in lstcollide:
-            
+
             # из всех колиженов берем только "горизонтальные"
             if elemcolground.rect.y <= ybottom and (self.rect.centery < elemcolground.rect.top):
                 elemcolground.image.fill(BLUE)
                 resDict['isGround'] = True
-                #print("       delta", ybottom, "   ", elemcolground.rect.y)
                 if (ybottom - elemcolground.rect.y) <= resDict['deltaY']:
-                    #resDict['deltaY'] = ybottom - elemcolground.rect.y - 1
                     resDict['deltaY'] = ybottom - elemcolground.rect.y 
-                    
-        #print("       ", resDict)
         return resDict
 
     def checkX(self):
@@ -136,9 +123,9 @@ class Hero(pygame.sprite.Sprite):
         ybottom = self.y + self.rect.height
         lstcollide = pygame.sprite.spritecollide(self, grounds, False)
         for elemcolground in lstcollide:
-           
-            
-
+            # TODO есть некая накопленная ошибка 
+            # на вертикальных стенах некорректно отрабатывается
+            # прыжок, странно определяется "isGround"    
             # из всех колиженов берем только "вертикальные"
             if (self.rect.bottom - elemcolground.rect.top) >= 2:
                 resDict['isBlock'] = True
@@ -154,10 +141,11 @@ class Hero(pygame.sprite.Sprite):
 
         return resDict
 
-            
     def move(self, dt):
         # print("Начало  MOVE")
-        self.x += int(self.xVelocity)
+        self.x += self.xVelocity
+        
+        
         self.y += self.yVelocity
 
         self.rect.x = self.x
@@ -166,58 +154,27 @@ class Hero(pygame.sprite.Sprite):
         for elemground in grounds:
             elemground.image.fill(GREEN)
 
+        
+
         resDictY = self.checkY()
         self.isGround = resDictY["isGround"]
-        
+
         if resDictY["isGround"]:
-            # print("вошли в землю")
-            # приземляемся 
+
+            # приземляемся, ставим героя "над" землей 
             self.y = self.y - resDictY["deltaY"]
             self.rect.y = self.y
             self.yVelocity = self.gravity
         else:
             if self.yVelocity < self.jumpCount: 
                 self.yVelocity += self.gravity
-          
+
         resDictX = self.checkX()
         if resDictX["isBlock"]:
-            #print("x do = ", self.x)
-            #self.x += resDictX["deltaX"]
             self.rect.x += resDictX["deltaX"]
-            
             self.x = self.rect.x
-            #print("x aft = ", self.x)
             self.xVelocity = 0
-
-        # рабочий фрагмент
-        #if self.xVelocity != 0 and not resDictX["isBlock"]:
-        #    self.xVelocity /= 70*dt
-
-        #resDictY = self.checkY()
-        #if resDictY["isGround"]:
-            #print(resDictY)
-        #    self.y = self.y - resDictY["deltaY"]
-        #    print(self.y)
-        #    self.rect.y = self.y
-        #    self.yVelocity = 0
-
-        #if self.yVelocity < self.jumpCount and not resDictY["isGround"]: 
-        #    self.yVelocity += self.gravity
-
-        #resDictX = self.checkX()
-        #if resDictX["isBlock"]:
-            #print("x do = ", self.x)
-            
-        #    self.rect.x = self.rect.x + resDictX["deltaX"] 
-        #    self.x = self.rect.x
-            #print("x aft = ", self.x)
-        #    self.xVelocity = 0
-
-        # рабочий фрагмент
-        #if self.xVelocity != 0 and not resDictX["isBlock"]:
-        #    self.xVelocity /= 70*dt
-    
-        #print("Конец MOVE\n\n")
+        # print("Конец MOVE\n\n")
         
     def update(self):
         self.rect = pygame.Rect(self.x, self.y, 48, 64)
